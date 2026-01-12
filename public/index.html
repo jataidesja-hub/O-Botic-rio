@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recepção - Registro de Pedidos</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .container {
+        width: 100%;
+        max-width: 500px;
+      }
+      h1 {
+        color: #ffffff;
+        font-size: 28px;
+        margin-bottom: 24px;
+        text-align: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      }
+      .nav-links {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+      .nav-links a {
+        flex: 1;
+        min-width: 120px;
+        padding: 10px 16px;
+        background: rgba(255,255,255,0.2);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255,255,255,0.3);
+      }
+      .nav-links a:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      }
+      .card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      }
+      .card-title {
+        color: #5e2750;
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 24px;
+      }
+      label {
+        display: block;
+        margin-top: 16px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #333;
+      }
+      input {
+        width: 100%;
+        padding: 12px;
+        margin-top: 6px;
+        border-radius: 8px;
+        border: 2px solid #e0e0e0;
+        font-size: 14px;
+        transition: all 0.3s ease;
+      }
+      input:focus {
+        outline: none;
+        border-color: #5e2750;
+        box-shadow: 0 0 0 3px rgba(94, 39, 80, 0.1);
+      }
+      button {
+        margin-top: 24px;
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 15px;
+        cursor: pointer;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(94, 39, 80, 0.3);
+      }
+      button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(94, 39, 80, 0.4);
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .msg {
+        margin-top: 16px;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        text-align: center;
+        font-weight: 500;
+        display: none;
+      }
+      .msg.ok {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        display: block;
+      }
+      .msg.erro {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        display: block;
+      }
+      .hint {
+        font-size: 12px;
+        color: #666;
+        margin-top: 4px;
+        font-weight: normal;
+      }
+      @media (max-width: 600px) {
+        .card {
+          padding: 24px;
+        }
+        h1 {
+          font-size: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>💄 Sistema O Boticário</h1>
+      
+      <div class="nav-links">
+        <a href="/">Recepção</a>
+        <a href="/painel">Painel</a>
+        <a href="/operacao">Operação</a>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Recepção - Registro de Pedidos</div>
+        <form id="formPedido">
+          <label for="nomeVendedora">
+            Nome da vendedora
+            <div class="hint">Digite o nome completo da revendedora</div>
+          </label>
+          <input type="text" id="nomeVendedora" required placeholder="Ex.: Maria Souza">
+
+          <label for="numeroPedido">
+            Nº do pedido
+            <div class="hint">Insira o número do pedido</div>
+          </label>
+          <input type="text" id="numeroPedido" required placeholder="Ex.: 123456">
+
+          <label for="dataPedido">
+            Data do pedido (opcional)
+            <div class="hint">Se não preencher, será usada a data de hoje</div>
+          </label>
+          <input type="date" id="dataPedido">
+
+          <button id="btnSalvar" type="submit">Registrar pedido</button>
+
+          <div id="mensagem" class="msg"></div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:3000'
+        : '';
+
+      document.getElementById('formPedido').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const nomeVendedora = document.getElementById('nomeVendedora').value.trim();
+        const numeroPedido = document.getElementById('numeroPedido').value.trim();
+        const dataPedidoStr = document.getElementById('dataPedido').value;
+
+        const btn = document.getElementById('btnSalvar');
+        const msgEl = document.getElementById('mensagem');
+        msgEl.textContent = '';
+        msgEl.className = 'msg';
+
+        if (!nomeVendedora || !numeroPedido) {
+          msgEl.textContent = 'Preencha nome da vendedora e número do pedido.';
+          msgEl.classList.add('erro');
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Registrando...';
+
+        try {
+          const response = await fetch(`${API_BASE}/api/pedidos`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              nomeVendedora,
+              numeroPedido,
+              dataPedidoStr
+            })
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            msgEl.textContent = data.message || 'Pedido registrado com sucesso!';
+            msgEl.classList.add('ok');
+            document.getElementById('formPedido').reset();
+          } else {
+            msgEl.textContent = data.error || 'Erro ao registrar pedido.';
+            msgEl.classList.add('erro');
+          }
+        } catch (error) {
+          msgEl.textContent = 'Erro ao conectar com o servidor: ' + error.message;
+          msgEl.classList.add('erro');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Registrar pedido';
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+{
+    "pedidos": [],
+    "funcionarios": [
+        {
+            "nome": "João Silva",
+            "funcao": "Separação",
+            "ativo": true
+        },
+        {
+            "nome": "Maria Santos",
+            "funcao": "Faturamento",
+            "ativo": true
+        }
+    ]
+}

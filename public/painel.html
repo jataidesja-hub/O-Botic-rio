@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Galpão - Pedidos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        header {
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        header .titulo {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        header .sub {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-links a {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        main {
+            padding: 20px 32px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            background: #16213e;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 14px 12px;
+            text-align: center;
+        }
+
+        th {
+            background: #0f3460;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        tr:not(:last-child) td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        tr:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .etapa-tag {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .etapa-aguardando {
+            background: #f1c40f;
+            color: #2c3e50;
+        }
+
+        .etapa-separacao {
+            background: #3498db;
+            color: white;
+        }
+
+        .etapa-faturamento {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .etapa-concluido {
+            background: #27ae60;
+            color: white;
+        }
+
+        .info-top {
+            margin-bottom: 12px;
+            font-size: 13px;
+            opacity: 0.7;
+            text-align: center;
+        }
+
+        .sem-registros {
+            text-align: center;
+            margin-top: 60px;
+            font-size: 18px;
+            opacity: 0.5;
+        }
+
+        #popupNovo {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 360px;
+            background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%);
+            color: #2c3e50;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 999;
+            animation: slideIn 0.5s ease-out, pulse 0.7s ease-out 0.5s 3 alternate;
+        }
+
+        #popupNovo strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.05);
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th,
+            td {
+                padding: 10px 6px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div>
+            <div class="titulo">💄 Painel de Pedidos - Galpão</div>
+            <div class="sub">Distribuidora de Perfumes O Boticário</div>
+        </div>
+        <div>
+            <div id="horaAtual" style="font-size: 18px; font-weight: 500;"></div>
+            <div class="nav-links" style="margin-top: 8px;">
+                <a href="/">Recepção</a>
+                <a href="/painel">Painel</a>
+                <a href="/operacao">Operação</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Aguardando Separação</div>
+                <div class="stat-value" id="statAguardando">0</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #3498db;">
+                <div class="stat-label">Em Separação</div>
+                <div class="stat-value" id="statSeparacao">0</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #9b59b6;">
+                <div class="stat-label">Faturamento</div>
+                <div class="stat-value" id="statFaturamento">0</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #27ae60;">
+                <div class="stat-label">Concluídos Hoje</div>
+                <div class="stat-value" id="statConcluido">0</div>
+            </div>
+        </div>
+
+        <div class="info-top">Atualiza automaticamente a cada 5 segundos</div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nº Pedido</th>
+                    <th>Data Pedido</th>
+                    <th>Vendedora</th>
+                    <th>Etapa</th>
+                    <th>Responsável</th>
+                    <th>Desde</th>
+                    <th>Tempo</th>
+                </tr>
+            </thead>
+            <tbody id="tbodyPedidos"></tbody>
+        </table>
+
+        <div id="semDados" class="sem-registros" style="display:none;">
+            Nenhum pedido registrado ainda.
+        </div>
+    </main>
+
+    <div id="popupNovo">
+        <strong>🔔 Novo pedido aguardando separação!</strong>
+        <div id="popupTexto"></div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : '';
+
+        let aguardandoConhecidos = {};
+
+        function atualizarHora() {
+            const el = document.getElementById('horaAtual');
+            const agora = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const texto = pad(agora.getDate()) + '/' +
+                pad(agora.getMonth() + 1) + '/' +
+                agora.getFullYear() + ' ' +
+                pad(agora.getHours()) + ':' +
+                pad(agora.getMinutes()) + ':' +
+                pad(agora.getSeconds());
+            el.textContent = texto;
+        }
+
+        function classeEtapa(etapa) {
+            if (!etapa) return 'etapa-tag';
+            const e = etapa.toLowerCase();
+            if (e.includes('aguardando')) return 'etapa-tag etapa-aguardando';
+            if (e.includes('separação') || e.includes('separacao')) return 'etapa-tag etapa-separacao';
+            if (e.includes('faturamento')) return 'etapa-tag etapa-faturamento';
+            if (e.includes('concluído') || e.includes('concluido')) return 'etapa-tag etapa-concluido';
+            return 'etapa-tag';
+        }
+
+        function tocarBeep() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                const ctx = new AudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = 880;
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.4);
+            } catch (e) {
+                console.log('Erro ao tocar beep', e);
+            }
+        }
+
+        function mostrarPopup(pedido) {
+            const popup = document.getElementById('popupNovo');
+            const texto = document.getElementById('popupTexto');
+            texto.textContent = `Pedido nº ${pedido.numeroPedido} - ${pedido.vendedora || ''}`;
+            popup.style.display = 'block';
+            tocarBeep();
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 5000);
+        }
+
+        async function carregarPedidos() {
+            try {
+                const response = await fetch(`${API_BASE}/api/pedidos`);
+                const lista = await response.json();
+
+                const tbody = document.getElementById('tbodyPedidos');
+                const semDados = document.getElementById('semDados');
+                tbody.innerHTML = '';
+
+                if (!lista || lista.length === 0) {
+                    semDados.style.display = 'block';
+                    aguardandoConhecidos = {};
+                    atualizarStats(0, 0, 0, 0);
+                    return;
+                }
+
+                semDados.style.display = 'none';
+                const novosAguardando = {};
+
+                let countAguardando = 0;
+                let countSeparacao = 0;
+                let countFaturamento = 0;
+                let countConcluido = 0;
+
+                lista.forEach(p => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+              <td>${p.id || ''}</td>
+              <td><strong>${p.numeroPedido || ''}</strong></td>
+              <td>${p.dataPedido || ''}</td>
+              <td>${p.vendedora || ''}</td>
+              <td><span class="${classeEtapa(p.etapa)}">${p.etapa || ''}</span></td>
+              <td>${p.funcionario || '-'}</td>
+              <td>${p.dataRegistro || ''}</td>
+              <td><strong>${p.tempoDecorrido || ''}</strong></td>
+            `;
+                    tbody.appendChild(tr);
+
+                    const etapa = (p.etapa || '').toLowerCase();
+                    if (etapa.includes('aguardando')) {
+                        countAguardando++;
+                        novosAguardando[p.id] = true;
+                        if (!aguardandoConhecidos[p.id]) {
+                            mostrarPopup(p);
+                        }
+                    } else if (etapa.includes('separação') || etapa.includes('separacao')) {
+                        countSeparacao++;
+                    } else if (etapa.includes('faturamento')) {
+                        countFaturamento++;
+                    } else if (etapa.includes('concluído') || etapa.includes('concluido')) {
+                        countConcluido++;
+                    }
+                });
+
+                aguardandoConhecidos = novosAguardando;
+                atualizarStats(countAguardando, countSeparacao, countFaturamento, countConcluido);
+
+            } catch (error) {
+                console.error('Erro ao carregar pedidos:', error);
+            }
+        }
+
+        function atualizarStats(aguardando, separacao, faturamento, concluido) {
+            document.getElementById('statAguardando').textContent = aguardando;
+            document.getElementById('statSeparacao').textContent = separacao;
+            document.getElementById('statFaturamento').textContent = faturamento;
+            document.getElementById('statConcluido').textContent = concluido;
+        }
+
+        setInterval(atualizarHora, 1000);
+        atualizarHora();
+
+        setInterval(carregarPedidos, 5000);
+        carregarPedidos();
+    </script>
+</body>
+
+</html>

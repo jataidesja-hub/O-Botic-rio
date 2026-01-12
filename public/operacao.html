@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Operação - Separação / Faturamento</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #ffffff;
+            font-size: 28px;
+            margin-bottom: 24px;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-title {
+            color: #5e2750;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-top: 16px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            font-size: 14px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #5e2750;
+            box-shadow: 0 0 0 3px rgba(94, 39, 80, 0.1);
+        }
+
+        .linha {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        button {
+            margin-top: 24px;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(94, 39, 80, 0.3);
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(94, 39, 80, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secundario {
+            margin-top: 12px;
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            padding: 10px;
+            font-size: 13px;
+        }
+
+        .msg {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .msg.ok {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .msg.erro {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+            font-weight: normal;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 24px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .linha {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>💄 Sistema O Boticário</h1>
+
+        <div class="nav-links">
+            <a href="/">Recepção</a>
+            <a href="/painel">Painel</a>
+            <a href="/operacao">Operação</a>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Operação - Separação / Faturamento</div>
+            <form id="formOperacao">
+                <div class="linha">
+                    <div>
+                        <label for="nomeFuncionario">
+                            Seu nome
+                            <div class="hint">Selecione seu nome</div>
+                        </label>
+                        <select id="nomeFuncionario" required>
+                            <option value="">Carregando...</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="numeroPedido">
+                            Nº do pedido
+                            <div class="hint">Selecione o pedido</div>
+                        </label>
+                        <select id="numeroPedido" required>
+                            <option value="">Carregando...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <label for="etapa">
+                    Etapa atual
+                    <div class="hint">Altere conforme o andamento do trabalho</div>
+                </label>
+                <select id="etapa" required>
+                    <option value="">Selecione...</option>
+                    <option value="Aguardando separação">Aguardando separação</option>
+                    <option value="Separação">Separação</option>
+                    <option value="Faturamento">Faturamento</option>
+                    <option value="Concluído">Concluído</option>
+                </select>
+
+                <button id="btnSalvar" type="submit">Atualizar etapa</button>
+                <button class="btn-secundario" type="button" onclick="carregarListas(false)">
+                    🔄 Atualizar listas
+                </button>
+
+                <div id="mensagem" class="msg"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : '';
+
+        function preencherSelectPreservando(selectEl, lista, placeholder = 'Selecione...') {
+            const valorAtual = selectEl.value;
+            selectEl.innerHTML = `<option value="">${placeholder}</option>`;
+
+            (lista || []).forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item;
+                opt.textContent = item;
+                selectEl.appendChild(opt);
+            });
+
+            if (valorAtual && lista && lista.indexOf(valorAtual) !== -1) {
+                selectEl.value = valorAtual;
+            }
+        }
+
+        async function carregarListas(autoRefresh) {
+            const selFunc = document.getElementById('nomeFuncionario');
+            const selPed = document.getElementById('numeroPedido');
+
+            try {
+                // Carrega funcionários
+                const respFunc = await fetch(`${API_BASE}/api/funcionarios`);
+                const listaFunc = await respFunc.json();
+                preencherSelectPreservando(selFunc, listaFunc, 'Selecione seu nome...');
+
+                // Carrega pedidos disponíveis
+                const respPed = await fetch(`${API_BASE}/api/pedidos-disponiveis`);
+                const listaPed = await respPed.json();
+                preencherSelectPreservando(selPed, listaPed, 'Selecione o pedido...');
+
+            } catch (error) {
+                console.error('Erro ao carregar listas:', error);
+            }
+        }
+
+        document.getElementById('formOperacao').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nomeFuncionario = document.getElementById('nomeFuncionario').value.trim();
+            const numeroPedido = document.getElementById('numeroPedido').value.trim();
+            const etapa = document.getElementById('etapa').value;
+
+            const btn = document.getElementById('btnSalvar');
+            const msgEl = document.getElementById('mensagem');
+            msgEl.textContent = '';
+            msgEl.className = 'msg';
+
+            if (!nomeFuncionario || !numeroPedido || !etapa) {
+                msgEl.textContent = 'Preencha todos os campos.';
+                msgEl.classList.add('erro');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Atualizando...';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/atualizar-etapa`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        numeroPedido,
+                        etapa,
+                        nomeFuncionario
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    msgEl.textContent = data.message || 'Etapa atualizada com sucesso!';
+                    msgEl.classList.add('ok');
+                    // Atualiza listas (pedido pode ter saído da lista se concluído)
+                    setTimeout(() => carregarListas(true), 500);
+                } else {
+                    msgEl.textContent = data.error || 'Erro ao atualizar etapa.';
+                    msgEl.classList.add('erro');
+                }
+            } catch (error) {
+                msgEl.textContent = 'Erro ao conectar com o servidor: ' + error.message;
+                msgEl.classList.add('erro');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Atualizar etapa';
+            }
+        });
+
+        // Carrega listas ao abrir
+        carregarListas(false);
+
+        // Atualiza listas a cada 5 segundos
+        setInterval(() => carregarListas(true), 5000);
+    </script>
+</body>
+
+</html>
