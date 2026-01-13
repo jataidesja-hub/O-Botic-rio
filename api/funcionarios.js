@@ -1,47 +1,28 @@
-const fs = require('fs-extra');
-const path = require('path');
-
-const DB_PATH = path.join(process.cwd(), 'data', 'db.json');
-
-async function readDB() {
-    try {
-        return await fs.readJson(DB_PATH);
-    } catch (error) {
-        return { pedidos: [], funcionarios: [] };
-    }
-}
+const { kv } = require('@vercel/kv');
 
 module.exports = async (req, res) => {
-    // CORS
-    res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-
     if (req.method === 'GET') {
         try {
-            const db = await readDB();
+            // Se não houver funcionários no KV, retorna uma lista padrão inicial
+            let funcionarios = await kv.get('funcionarios');
 
-            // Retorna apenas funcionários ativos
-            const funcionariosAtivos = db.funcionarios
-                .filter(f => f.nome && f.ativo !== false)
+            if (!funcionarios) {
+                funcionarios = [
+                    { nome: "João Silva", ativo: true },
+                    { nome: "Maria Santos", ativo: true }
+                ];
+                await kv.set('funcionarios', funcionarios);
+            }
+
+            const ativos = funcionarios
+                .filter(f => f.ativo !== false)
                 .map(f => f.nome)
                 .sort();
 
-            // Remove duplicatas
-            const funcionariosUnicos = [...new Set(funcionariosAtivos)];
-
-            return res.status(200).json(funcionariosUnicos);
-
+            return res.status(200).json(ativos);
         } catch (error) {
-            console.error('Erro ao buscar funcionários:', error);
-            return res.status(500).json({ error: error.message || 'Erro ao buscar funcionários' });
+            return res.status(500).json({ error: error.message });
         }
     }
-
-    return res.status(405).json({ error: 'Método não permitido' });
 };

@@ -1,55 +1,20 @@
-const fs = require('fs-extra');
-const path = require('path');
-
-const DB_PATH = path.join(process.cwd(), 'data', 'db.json');
-
-async function readDB() {
-    try {
-        return await fs.readJson(DB_PATH);
-    } catch (error) {
-        return { pedidos: [], funcionarios: [] };
-    }
-}
+const { kv } = require('@vercel/kv');
 
 module.exports = async (req, res) => {
-    // CORS
-    res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-
     if (req.method === 'GET') {
         try {
-            const db = await readDB();
+            const pedidos = await kv.get('pedidos') || [];
+            const disponiveis = pedidos
+                .filter(p => {
+                    const e = String(p.etapa || '').toLowerCase();
+                    return !e.includes('concluido') && !e.includes('concluído');
+                })
+                .map(p => String(p.numeroPedido));
 
-            // Retorna apenas pedidos NÃO concluídos
-            const numerosSet = new Set();
-
-            db.pedidos.forEach(p => {
-                if (!p.numeroPedido) return;
-
-                const etapaStr = String(p.etapa || '').toLowerCase();
-                // Se concluído, não adiciona
-                if (etapaStr.includes('concluído') || etapaStr.includes('concluido')) {
-                    return;
-                }
-
-                numerosSet.add(String(p.numeroPedido));
-            });
-
-            const numeros = Array.from(numerosSet).sort();
-
-            return res.status(200).json(numeros);
-
+            return res.status(200).json([...new Set(disponiveis)].sort());
         } catch (error) {
-            console.error('Erro ao buscar pedidos disponíveis:', error);
-            return res.status(500).json({ error: error.message || 'Erro ao buscar pedidos' });
+            return res.status(500).json({ error: error.message });
         }
     }
-
-    return res.status(405).json({ error: 'Método não permitido' });
 };
